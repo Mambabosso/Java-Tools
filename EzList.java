@@ -76,6 +76,10 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return defaultListModel.size();
 	}
 
+	public Object[] toArray() {
+		return defaultListModel.toArray();
+	}
+
 	public ArrayList<E> toArrayList(Predicate<E> predicate) {
 		ArrayList<E> result = new ArrayList<E>();
 		for (int i = 0; i < defaultListModel.size(); i++) {
