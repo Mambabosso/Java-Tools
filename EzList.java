@@ -7,7 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.swing.DefaultListModel;
@@ -40,6 +42,20 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		}
 	}
 
+	public EzList(E[] items) {
+		this();
+		for (E item : items) {
+			addItem(item);
+		}
+	}
+
+	public EzList(ArrayList<E> items) {
+		this();
+		for (E item : items) {
+			addItem(item);
+		}
+	}
+
 	public DefaultListModel<E> getModel() {
 		return defaultListModel;
 	}
@@ -56,12 +72,8 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return Collections.list(defaultListModel.elements()).iterator();
 	}
 
-	public ArrayList<E> toArrayList() {
-		ArrayList<E> result = new ArrayList<E>();
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			result.add(defaultListModel.getElementAt(i));
-		}
-		return result;
+	public int count() {
+		return defaultListModel.size();
 	}
 
 	public ArrayList<E> toArrayList(Predicate<E> predicate) {
@@ -75,12 +87,12 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return result;
 	}
 
-	public E get(int index) {
-		return defaultListModel.getElementAt(index);
+	public ArrayList<E> toArrayList() {
+		return toArrayList(e -> true);
 	}
 
-	public void set(int index, E item) {
-		defaultListModel.setElementAt(item, index);
+	public E get(int index) {
+		return defaultListModel.getElementAt(index);
 	}
 
 	public Object[] getItems() {
@@ -91,8 +103,32 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return toArrayList(predicate).toArray();
 	}
 
+	public boolean contains(E item) {
+		return defaultListModel.contains(item);
+	}
+
+	public int indexOf(E item) {
+		return defaultListModel.indexOf(item);
+	}
+
+	public void set(int index, E item) {
+		defaultListModel.setElementAt(item, index);
+	}
+
 	public void addItem(E item) {
 		defaultListModel.addElement(item);
+	}
+
+	public void addItems(E[] items) {
+		for (E item : items) {
+			defaultListModel.addElement(item);
+		}
+	}
+
+	public void addItems(ArrayList<E> items) {
+		for (E item : items) {
+			defaultListModel.addElement(item);
+		}
 	}
 
 	public boolean removeItem(E item) {
@@ -105,8 +141,9 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 
 	public void removeItem(Predicate<E> predicate) {
 		for (int i = 0; i < defaultListModel.size(); i++) {
-			if (predicate.test(defaultListModel.getElementAt(i))) {
-				defaultListModel.removeElementAt(i);
+			E element = defaultListModel.getElementAt(i);
+			if (predicate.test(element)) {
+				defaultListModel.removeElement(element);
 			}
 		}
 	}
@@ -115,7 +152,11 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		defaultListModel.clear();
 	}
 
-	public E first(Predicate<E> predicate) {
+	public boolean any() {
+		return count() > 0;
+	}
+
+	public E firstItem(Predicate<E> predicate) {
 		for (int i = 0; i < defaultListModel.size(); i++) {
 			E element = defaultListModel.getElementAt(i);
 			if (predicate.test(element)) {
@@ -123,6 +164,24 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 			}
 		}
 		return null;
+	}
+
+	public E firstItem() {
+		return firstItem(e -> true);
+	}
+
+	public E lastItem(Predicate<E> predicate) {
+		for (int i = defaultListModel.size() - 1; i > -1; i--) {
+			E element = defaultListModel.getElementAt(i);
+			if (predicate.test(element)) {
+				return element;
+			}
+		}
+		return null;
+	}
+
+	public E lastItem() {
+		return lastItem(e -> true);
 	}
 
 	public E getSelectedItem() {
@@ -141,15 +200,21 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return list.getSelectedIndices();
 	}
 
-	public boolean save(String path) {
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(path);
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(toArrayList());
-			objectOutputStream.close();
-			fileOutputStream.close();
-		} catch (Exception exception) {
-			return false;
+	public <EConverted> ArrayList<EConverted> convertAll(Function<E, EConverted> function) {
+		ArrayList<EConverted> result = new ArrayList<EConverted>();
+		for (int i = 0; i < defaultListModel.size(); i++) {
+			E element = defaultListModel.getElementAt(i);
+			result.add(function.apply(element));
+		}
+		return result;
+	}
+
+	public boolean trueForAll(Predicate<E> predicate) {
+		for (int i = 0; i < defaultListModel.size(); i++) {
+			E element = defaultListModel.getElementAt(i);
+			if (!predicate.test(element)) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -167,6 +232,10 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return true;
 	}
 
+	public boolean save(String path) {
+		return save(path, e -> true);
+	}
+
 	@SuppressWarnings("unchecked")
 	public ArrayList<E> load(String path) {
 		ArrayList<E> result = null;
@@ -182,14 +251,35 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return result;
 	}
 
-	public ListSelectionListener addSelectionListener(Consumer<ListSelectionEvent> consumer) {
+	public ArrayList<E> load(String path, boolean addToList) {
+		ArrayList<E> result = load(path);
+		if (result != null && addToList) {
+			addItems(result);
+		}
+		return result;
+	}
+
+	public ListSelectionListener addListSelectionListener(ListSelectionListener listener) {
+		list.addListSelectionListener(listener);
+		return listener;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ListSelectionListener addListSelectionListener(BiConsumer<ListSelectionEvent, List<E>> consumer) {
 		ListSelectionListener result = new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				consumer.accept(e);
+				if (!e.getValueIsAdjusting()) {
+					List<E> items = ((JList<E>) e.getSource()).getSelectedValuesList();
+					consumer.accept(e, Collections.unmodifiableList(items));
+				}
 			}
 		};
 		list.addListSelectionListener(result);
 		return result;
+	}
+
+	public void removeListSelectionListener(ListSelectionListener listener) {
+		list.removeListSelectionListener(listener);
 	}
 }
