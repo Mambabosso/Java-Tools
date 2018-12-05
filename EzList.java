@@ -1,3 +1,5 @@
+package eztools; //https://github.com/Mambabosso/Java-Tools
+
 import java.awt.GridLayout;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -107,14 +109,6 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 		return toArrayList(predicate).toArray();
 	}
 
-	public boolean contains(E item) {
-		return defaultListModel.contains(item);
-	}
-
-	public int indexOf(E item) {
-		return defaultListModel.indexOf(item);
-	}
-
 	public void set(int index, E item) {
 		defaultListModel.setElementAt(item, index);
 	}
@@ -158,6 +152,14 @@ public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 
 	public boolean any() {
 		return count() > 0;
+	}
+	
+	public boolean contains(E item) {
+		return defaultListModel.contains(item);
+	}
+
+	public int indexOf(E item) {
+		return defaultListModel.indexOf(item);
 	}
 
 	public E firstItem(Predicate<E> predicate) {
