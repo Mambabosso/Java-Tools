@@ -23,269 +23,279 @@ import javax.swing.event.ListSelectionListener;
 
 public class EzList<E> extends JComponent implements Iterable<E>, Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private DefaultListModel<E> defaultListModel;
-	private JList<E> list;
-	private JScrollPane scrollPane;
+    private DefaultListModel<E> defaultListModel;
+    private JList<E> list;
+    private JScrollPane scrollPane;
 
-	public EzList() {
-		setLayout(new GridLayout(0, 1));
-		defaultListModel = new DefaultListModel<E>();
-		list = new JList<E>(defaultListModel);
-		scrollPane = new JScrollPane(list);
-		add(scrollPane);
-	}
+    public EzList() {
+        setLayout(new GridLayout(0, 1));
+        defaultListModel = new DefaultListModel<E>();
+        list = new JList<E>(defaultListModel);
+        scrollPane = new JScrollPane(list);
+        add(scrollPane);
+    }
 
-	public EzList(EzList<E> list) {
-		this();
-		for (E item : list) {
-			addItem(item);
-		}
-	}
+    public EzList(EzList<E> list) {
+        this();
+        for (E item : list) {
+            addItem(item);
+        }
+    }
 
-	public EzList(E[] items) {
-		this();
-		for (E item : items) {
-			addItem(item);
-		}
-	}
+    public EzList(E[] items) {
+        this();
+        for (E item : items) {
+            addItem(item);
+        }
+    }
 
-	public EzList(ArrayList<E> items) {
-		this();
-		for (E item : items) {
-			addItem(item);
-		}
-	}
+    public EzList(ArrayList<E> items) {
+        this();
+        for (E item : items) {
+            addItem(item);
+        }
+    }
 
-	public DefaultListModel<E> getModel() {
-		return defaultListModel;
-	}
+    public DefaultListModel<E> getModel() {
+        return defaultListModel;
+    }
 
-	public JList<E> getList() {
-		return list;
-	}
+    public JList<E> getList() {
+        return list;
+    }
 
-	public JScrollPane getScrollPane() {
-		return scrollPane;
-	}
+    public JScrollPane getScrollPane() {
+        return scrollPane;
+    }
 
-	public Iterator<E> iterator() {
-		return Collections.list(defaultListModel.elements()).iterator();
-	}
+    public Iterator<E> iterator() {
+        return Collections.list(defaultListModel.elements()).iterator();
+    }
 
-	public int count() {
-		return defaultListModel.size();
-	}
+    public int count() {
+        return defaultListModel.size();
+    }
 
-	public Object[] toArray() {
-		return defaultListModel.toArray();
-	}
+    public Object[] toArray() {
+        return defaultListModel.toArray();
+    }
 
-	public ArrayList<E> toArrayList(Predicate<E> predicate) {
-		ArrayList<E> result = new ArrayList<E>();
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			E element = defaultListModel.getElementAt(i);
-			if (predicate.test(element)) {
-				result.add(element);
-			}
-		}
-		return result;
-	}
+    public ArrayList<E> toArrayList(Predicate<E> predicate) {
+        ArrayList<E> result = new ArrayList<E>();
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            if (predicate.test(element)) {
+                result.add(element);
+            }
+        }
+        return result;
+    }
 
-	public ArrayList<E> toArrayList() {
-		return toArrayList(e -> true);
-	}
+    public ArrayList<E> toArrayList() {
+        return toArrayList(e -> true);
+    }
 
-	public E get(int index) {
-		return defaultListModel.getElementAt(index);
-	}
+    public E get(int index) {
+        return defaultListModel.getElementAt(index);
+    }
 
-	public Object[] getItems() {
-		return toArrayList().toArray();
-	}
+    public List<E> getItems() {
+        return Collections.unmodifiableList(toArrayList());
+    }
 
-	public Object[] getItems(Predicate<E> predicate) {
-		return toArrayList(predicate).toArray();
-	}
+    public List<E> getItems(Predicate<E> predicate) {
+        return Collections.unmodifiableList(toArrayList(predicate));
+    }
 
-	public void set(int index, E item) {
-		defaultListModel.setElementAt(item, index);
-	}
+    public void set(int index, E item) {
+        defaultListModel.setElementAt(item, index);
+    }
 
-	public void addItem(E item) {
-		defaultListModel.addElement(item);
-	}
+    public void addItem(E item) {
+        defaultListModel.addElement(item);
+    }
 
-	public void addItems(E[] items) {
-		for (E item : items) {
-			defaultListModel.addElement(item);
-		}
-	}
+    public void addItems(E[] items) {
+        for (E item : items) {
+            defaultListModel.addElement(item);
+        }
+    }
 
-	public void addItems(ArrayList<E> items) {
-		for (E item : items) {
-			defaultListModel.addElement(item);
-		}
-	}
+    public void addItems(ArrayList<E> items) {
+        for (E item : items) {
+            defaultListModel.addElement(item);
+        }
+    }
 
-	public boolean removeItem(E item) {
-		return defaultListModel.removeElement(item);
-	}
+    public boolean removeItem(E item) {
+        return defaultListModel.removeElement(item);
+    }
 
-	public void removeItem(int index) {
-		defaultListModel.removeElementAt(index);
-	}
+    public boolean removeItem(int index) {
+        return defaultListModel.removeElement(defaultListModel.getElementAt(index));
+    }
 
-	public void removeItem(Predicate<E> predicate) {
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			E element = defaultListModel.getElementAt(i);
-			if (predicate.test(element)) {
-				defaultListModel.removeElement(element);
-			}
-		}
-	}
+    public void removeItems(Predicate<E> predicate) {
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            if (predicate.test(element)) {
+                defaultListModel.removeElement(element);
+            }
+        }
+    }
 
-	public void clear() {
-		defaultListModel.clear();
-	}
+    public void clear() {
+        defaultListModel.clear();
+    }
 
-	public boolean any() {
-		return count() > 0;
-	}
-	
-	public boolean contains(E item) {
-		return defaultListModel.contains(item);
-	}
+    public boolean any(Predicate<E> predicate) {
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            if (predicate.test(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public int indexOf(E item) {
-		return defaultListModel.indexOf(item);
-	}
+    public boolean any() {
+        return any(e -> true);
+    }
 
-	public E firstItem(Predicate<E> predicate) {
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			E element = defaultListModel.getElementAt(i);
-			if (predicate.test(element)) {
-				return element;
-			}
-		}
-		return null;
-	}
+    public boolean contains(E item) {
+        return defaultListModel.contains(item);
+    }
 
-	public E firstItem() {
-		return firstItem(e -> true);
-	}
+    public int indexOf(E item) {
+        return defaultListModel.indexOf(item);
+    }
 
-	public E lastItem(Predicate<E> predicate) {
-		for (int i = defaultListModel.size() - 1; i > -1; i--) {
-			E element = defaultListModel.getElementAt(i);
-			if (predicate.test(element)) {
-				return element;
-			}
-		}
-		return null;
-	}
+    public E firstItem(Predicate<E> predicate) {
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            if (predicate.test(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
 
-	public E lastItem() {
-		return lastItem(e -> true);
-	}
+    public E firstItem() {
+        return firstItem(e -> true);
+    }
 
-	public E getSelectedItem() {
-		return list.getSelectedValue();
-	}
+    public E lastItem(Predicate<E> predicate) {
+        for (int i = defaultListModel.size() - 1; i > -1; i--) {
+            E element = defaultListModel.getElementAt(i);
+            if (predicate.test(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
 
-	public Object[] getSelectedItems() {
-		return list.getSelectedValuesList().toArray();
-	}
+    public E lastItem() {
+        return lastItem(e -> true);
+    }
 
-	public int getSelectedIndex() {
-		return list.getSelectedIndex();
-	}
+    public E getSelectedItem() {
+        return list.getSelectedValue();
+    }
 
-	public int[] getSelectedIndices() {
-		return list.getSelectedIndices();
-	}
+    public List<E> getSelectedItems() {
+        return Collections.unmodifiableList(list.getSelectedValuesList());
+    }
 
-	public <EConverted> ArrayList<EConverted> convertAll(Function<E, EConverted> function) {
-		ArrayList<EConverted> result = new ArrayList<EConverted>();
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			E element = defaultListModel.getElementAt(i);
-			result.add(function.apply(element));
-		}
-		return result;
-	}
+    public int getSelectedIndex() {
+        return list.getSelectedIndex();
+    }
 
-	public boolean trueForAll(Predicate<E> predicate) {
-		for (int i = 0; i < defaultListModel.size(); i++) {
-			E element = defaultListModel.getElementAt(i);
-			if (!predicate.test(element)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public int[] getSelectedIndices() {
+        return list.getSelectedIndices();
+    }
 
-	public boolean save(String path, Predicate<E> predicate) {
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(path);
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(toArrayList(predicate));
-			objectOutputStream.close();
-			fileOutputStream.close();
-		} catch (Exception exception) {
-			return false;
-		}
-		return true;
-	}
+    public <EConverted> ArrayList<EConverted> convertAll(Function<E, EConverted> function) {
+        ArrayList<EConverted> result = new ArrayList<EConverted>();
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            result.add(function.apply(element));
+        }
+        return result;
+    }
 
-	public boolean save(String path) {
-		return save(path, e -> true);
-	}
+    public boolean trueForAll(Predicate<E> predicate) {
+        for (int i = 0; i < defaultListModel.size(); i++) {
+            E element = defaultListModel.getElementAt(i);
+            if (!predicate.test(element)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	@SuppressWarnings("unchecked")
-	public ArrayList<E> load(String path) {
-		ArrayList<E> result = null;
-		try {
-			FileInputStream fileInputStream = new FileInputStream(path);
-			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-			result = (ArrayList<E>) objectInputStream.readObject();
-			objectInputStream.close();
-			fileInputStream.close();
-		} catch (Exception exception) {
-			return null;
-		}
-		return result;
-	}
+    public boolean save(String path, Predicate<E> predicate) {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(toArrayList(predicate));
+            objectOutputStream.close();
+            fileOutputStream.close();
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
 
-	public ArrayList<E> load(String path, boolean addToList) {
-		ArrayList<E> result = load(path);
-		if (result != null && addToList) {
-			addItems(result);
-		}
-		return result;
-	}
+    public boolean save(String path) {
+        return save(path, e -> true);
+    }
 
-	public ListSelectionListener addListSelectionListener(ListSelectionListener listener) {
-		list.addListSelectionListener(listener);
-		return listener;
-	}
+    @SuppressWarnings("unchecked")
+    public ArrayList<E> load(String path) {
+        ArrayList<E> result = null;
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            result = (ArrayList<E>) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+        } catch (Exception exception) {
+            return null;
+        }
+        return result;
+    }
 
-	@SuppressWarnings("unchecked")
-	public ListSelectionListener addListSelectionListener(BiConsumer<ListSelectionEvent, List<E>> consumer) {
-		ListSelectionListener result = new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
-					List<E> items = ((JList<E>) e.getSource()).getSelectedValuesList();
-					consumer.accept(e, Collections.unmodifiableList(items));
-				}
-			}
-		};
-		list.addListSelectionListener(result);
-		return result;
-	}
+    public ArrayList<E> load(String path, boolean addToList) {
+        ArrayList<E> result = load(path);
+        if (result != null && addToList) {
+            addItems(result);
+        }
+        return result;
+    }
 
-	public void removeListSelectionListener(ListSelectionListener listener) {
-		list.removeListSelectionListener(listener);
-	}
+    public ListSelectionListener addListSelectionListener(ListSelectionListener listener) {
+        list.addListSelectionListener(listener);
+        return listener;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ListSelectionListener addListSelectionListener(BiConsumer<ListSelectionEvent, List<E>> listener) {
+        ListSelectionListener result = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    List<E> items = ((JList<E>) e.getSource()).getSelectedValuesList();
+                    listener.accept(e, Collections.unmodifiableList(items));
+                }
+            }
+        };
+        list.addListSelectionListener(result);
+        return result;
+    }
+
+    public void removeListSelectionListener(ListSelectionListener listener) {
+        list.removeListSelectionListener(listener);
+    }
 }
